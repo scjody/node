@@ -1,5 +1,12 @@
-# node
+# NODE Computing
 
+## VERY WIP
+
+This document (and repo) will be fleshed out in the coming weeks.
+
+## Index
+
+* [`infra/`](infra/) - infrastructure for our reimplementation of the NODE BBS, running in the cloud
 
 
 ## Getting started
