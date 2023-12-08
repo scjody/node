@@ -1,0 +1,6 @@
+name: node-infra
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Cloud infrastructure for the reimplemented NODE Computing BBS
