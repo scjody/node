@@ -1,4 +1,3 @@
 config:
   gcp:project: node-infra
   gcp:region: us-central1
-  node-infra:nodesPerZone: "0"
