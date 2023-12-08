@@ -6,6 +6,15 @@ gcp_project = provider_cfg.require("project")
 gcp_region = provider_cfg.get("region", "us-central1")
 config = pulumi.Config()
 
+apis = {}
+for api in [
+    "container.googleapis.com",
+    "compute.googleapis.com",
+]:
+    apis[api] = gcp.projects.Service(
+        api, project=gcp_project, service=api
+    )
+
 gke_network = gcp.compute.Network(
     "gke-network",
     auto_create_subnetworks=False,
