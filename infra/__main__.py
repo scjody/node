@@ -30,18 +30,13 @@ gke_subnet = gcp.compute.Subnetwork(
 
 gke_cluster = gcp.container.Cluster(
     "machine-learning",
-    addons_config=gcp.container.ClusterAddonsConfigArgs(
-        dns_cache_config=gcp.container.ClusterAddonsConfigDnsCacheConfigArgs(
-            enabled=True
-        ),
-    ),
     binary_authorization=gcp.container.ClusterBinaryAuthorizationArgs(
         evaluation_mode="PROJECT_SINGLETON_POLICY_ENFORCE"
     ),
     datapath_provider="ADVANCED_DATAPATH",
     description="Machine Learning",
     enable_autopilot=True,
-    initial_node_count=1,
+    initial_node_count=0,
     ip_allocation_policy=gcp.container.ClusterIpAllocationPolicyArgs(
         cluster_ipv4_cidr_block="/14", services_ipv4_cidr_block="/20"
     ),
@@ -60,12 +55,8 @@ gke_cluster = gcp.container.Cluster(
         enable_private_endpoint=False,
         master_ipv4_cidr_block="10.100.0.0/28",
     ),
-    remove_default_node_pool=True,
     release_channel=gcp.container.ClusterReleaseChannelArgs(channel="STABLE"),
     subnetwork=gke_subnet.name,
-    workload_identity_config=gcp.container.ClusterWorkloadIdentityConfigArgs(
-        workload_pool=f"{gcp_project}.svc.id.goog"
-    )
 )
 
 cluster_kubeconfig = pulumi.Output.all(
