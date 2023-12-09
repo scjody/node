@@ -94,3 +94,27 @@ pulumi.export("networkId", gke_network.id)
 pulumi.export("clusterName", gke_cluster.name)
 pulumi.export("clusterId", gke_cluster.id)
 pulumi.export("kubeconfig", cluster_kubeconfig)
+
+instance = gcp.compute.Instance(
+    "build",
+    machine_type="e2-micro",
+    boot_disk=gcp.compute.InstanceBootDiskArgs(
+        initialize_params=gcp.compute.InstanceBootDiskInitializeParamsArgs(
+            image="ubuntu-2204-jammy-v20231201",
+            size=30,
+        ),
+    ),
+    network_interfaces=[
+        gcp.compute.InstanceNetworkInterfaceArgs(
+            network="default",
+            access_configs=[
+                gcp.compute.InstanceNetworkInterfaceAccessConfigArgs()
+            ],  # Creates a public IP
+        )
+    ],
+    zone="us-central1-a",
+)
+
+pulumi.export("instance_name", instance.name)
+pulumi.export("instance_machine_type", instance.machine_type)
+pulumi.export("instance_zone", instance.zone)
