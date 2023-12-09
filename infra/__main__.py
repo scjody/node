@@ -33,6 +33,7 @@ gke_cluster = gcp.container.Cluster(
     ),
     datapath_provider="ADVANCED_DATAPATH",
     description="Machine Learning",
+    dns_config=gcp.container.ClusterDnsConfigArgs(cluster_dns="CLOUD_DNS"),
     enable_autopilot=True,
     initial_node_count=0,
     ip_allocation_policy=gcp.container.ClusterIpAllocationPolicyArgs(
