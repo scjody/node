@@ -11,9 +11,7 @@ for api in [
     "container.googleapis.com",
     "compute.googleapis.com",
 ]:
-    apis[api] = gcp.projects.Service(
-        api, project=gcp_project, service=api
-    )
+    apis[api] = gcp.projects.Service(api, project=gcp_project, service=api)
 
 gke_network = gcp.compute.Network(
     "gke-network",
