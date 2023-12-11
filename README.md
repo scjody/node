@@ -7,6 +7,7 @@ This document (and repo) will be fleshed out in the coming weeks.
 ## Index
 
 * [`infra/`](infra/) - infrastructure for our reimplementation of the NODE BBS, running in the cloud
+* [`truss/`](truss/) - truss-based builds for LLMs
 
 
 ## Getting started
