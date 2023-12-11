@@ -28,6 +28,7 @@ gke_subnet = gcp.compute.Subnetwork(
 
 gke_cluster = gcp.container.Cluster(
     "machine-learning",
+    opts=pulumi.ResourceOptions(ignore_changes=["nodePoolDefaults"]),
     binary_authorization=gcp.container.ClusterBinaryAuthorizationArgs(
         evaluation_mode="PROJECT_SINGLETON_POLICY_ENFORCE"
     ),
