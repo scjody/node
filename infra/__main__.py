@@ -117,7 +117,7 @@ instance = gcp.compute.Instance(
             ],  # Creates a public IP
         )
     ],
-    zone="us-central1-a",
+    zone="us-central1-c",
 )
 
 pulumi.export("instance_name", instance.name)
