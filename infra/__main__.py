@@ -109,6 +109,9 @@ instance = gcp.compute.Instance(
             size=30,
         ),
     ),
+    metadata={
+        "enable-oslogin": "TRUE",
+    },
     network_interfaces=[
         gcp.compute.InstanceNetworkInterfaceArgs(
             network="default",
