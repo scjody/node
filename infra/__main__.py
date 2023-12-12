@@ -111,9 +111,25 @@ pulumi.export("clusterName", gke_cluster.name)
 pulumi.export("clusterId", gke_cluster.id)
 pulumi.export("kubeconfig", cluster_kubeconfig)
 
-instance = gcp.compute.Instance(
+build_service_account = gcp.serviceaccount.Account(
+    "build-sa", account_id="build-sa", display_name="Build Service Account"
+)
+
+service_account_email = build_service_account.email.apply(
+    lambda email: f"serviceAccount:{email}"
+)
+
+build_service_account_binding = gcp.projects.IAMBinding(
+    "build_service_account_binding",
+    role="roles/artifactregistry.writer",
+    members=[service_account_email],
+    project=gcp_project,
+)
+
+build_instance = gcp.compute.Instance(
     "build",
     machine_type="e2-micro",
+    allow_stopping_for_update=True,
     boot_disk=gcp.compute.InstanceBootDiskArgs(
         initialize_params=gcp.compute.InstanceBootDiskInitializeParamsArgs(
             image="ubuntu-2204-jammy-v20231201",
@@ -131,9 +147,12 @@ instance = gcp.compute.Instance(
             ],  # Creates a public IP
         )
     ],
+    service_account=gcp.compute.InstanceServiceAccountArgs(
+        email=build_service_account.email, scopes=["cloud-platform"]
+    ),
     zone="us-central1-c",
 )
 
-pulumi.export("instance_name", instance.name)
-pulumi.export("instance_machine_type", instance.machine_type)
-pulumi.export("instance_zone", instance.zone)
+pulumi.export("build.instance_name", build_instance.name)
+pulumi.export("build.instance_machine_type", build_instance.machine_type)
+pulumi.export("build.instance_zone", build_instance.zone)
