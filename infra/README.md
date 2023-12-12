@@ -13,7 +13,7 @@ card LLM {
 
   database gar [
     GAR
-    0.5 GB + 💸
+    0.5 GB + [$]
   ]
 
   component gke [
@@ -23,12 +23,12 @@ card LLM {
 
   collections llm [
     LLM pods
-    💸 (when running)
+    [$] (when running)
   ]
 
   database gcs [
     GCS model storage
-    5 GB + 💸
+    5 GB + [$]
   ]
 }
 
