@@ -8,10 +8,21 @@ config = pulumi.Config()
 
 apis = {}
 for api in [
+    "artifactregistry.googleapis.com",
     "container.googleapis.com",
     "compute.googleapis.com",
 ]:
     apis[api] = gcp.projects.Service(api, project=gcp_project, service=api)
+
+gar_registry_docker = gcp.artifactregistry.Repository(
+    "node-registry-docker",
+    docker_config=gcp.artifactregistry.RepositoryDockerConfigArgs(
+        immutable_tags=True,
+    ),
+    format="DOCKER",
+    location="us-central1",
+    repository_id="node-registry-docker",
+)
 
 gke_network = gcp.compute.Network(
     "gke-network",
