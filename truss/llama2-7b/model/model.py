@@ -1,32 +1,57 @@
-"""
-The `Model` class is an interface between the ML model that you're packaging and the model
-server that you're running it on.
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from typing import Dict
+from huggingface_hub import login
+import os
 
-The main methods to implement here are:
-* `load`: runs exactly once when the model server is spun up or patched and loads the
-   model onto the model server. Include any logic for initializing your model, such
-   as downloading model weights and loading the model into memory.
-* `predict`: runs every time the model server is called. Include any logic for model
-  inference and return the model output.
-
-See https://truss.baseten.co/quickstart for more.
-"""
+MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"
+DEFAULT_MAX_LENGTH = 128
 
 
 class Model:
-    def __init__(self, **kwargs):
-        # Uncomment the following to get access
-        # to various parts of the Truss config.
-
-        # self._data_dir = kwargs["data_dir"]
-        # self._config = kwargs["config"]
-        # self._secrets = kwargs["secrets"]
-        self._model = None
+    def __init__(self, data_dir: str, config: Dict, **kwargs) -> None:
+        self._data_dir = data_dir
+        self._config = config
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        print("THE DEVICE INFERENCE IS RUNNING ON IS: ", self.device)
+        self.tokenizer = None
+        self.pipeline = None
+        secrets = kwargs.get("secrets")
+        self.huggingface_api_token = os.environ.get(
+            "TRUSS_SECRET_huggingface_api_token"
+        )
 
     def load(self):
-        # Load model here and assign to self._model.
-        pass
+        login(token=self.huggingface_api_token)
 
-    def predict(self, model_input):
-        # Run model inference here
-        return model_input
+    self.tokenizer = AutoTokenizer.from_pretrained(
+        MODEL_NAME, use_auth_token=self.huggingface_api_token
+    )
+    model_8bit = AutoModelForCausalLM.from_pretrained(
+        MODEL_NAME, device_map="auto", load_in_8bit=True, trust_remote_code=True
+    )
+
+    self.pipeline = pipeline(
+        "text-generation",
+        model=model_8bit,
+        tokenizer=self.tokenizer,
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+        device_map="auto",
+    )
+
+
+def predict(self, request: Dict) -> Dict:
+    with torch.no_grad():
+        try:
+            prompt = request.pop("prompt")
+            data = self.pipeline(
+                prompt,
+                eos_token_id=self.tokenizer.eos_token_id,
+                max_length=DEFAULT_MAX_LENGTH,
+                **request
+            )[0]
+            return {"data": data}
+
+        except Exception as exc:
+            return {"status": "error", "data": None, "message": str(exc)}
