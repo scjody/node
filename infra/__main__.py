@@ -80,7 +80,7 @@ gke_cluster = gcp.container.Cluster(
         enable_private_endpoint=False,
         master_ipv4_cidr_block="10.200.0.0/28",
     ),
-    release_channel=gcp.container.ClusterReleaseChannelArgs(channel="STABLE"),
+    release_channel=gcp.container.ClusterReleaseChannelArgs(channel="REGULAR"),
     subnetwork=gke_subnet_east.name,
 )
 
