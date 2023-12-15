@@ -4,6 +4,7 @@ import pulumi_gcp as gcp
 provider_cfg = pulumi.Config("gcp")
 gcp_project = provider_cfg.require("project")
 gcp_region = provider_cfg.get("region", "us-central1")
+k8s_region = "us-east1"
 config = pulumi.Config()
 
 apis = {}
@@ -30,11 +31,20 @@ gke_network = gcp.compute.Network(
     description="Virtual network for GKE cluster(s)",
 )
 
-gke_subnet = gcp.compute.Subnetwork(
-    "gke-subnet",
-    ip_cidr_range="10.128.0.0/12",
+gke_subnet_central = gcp.compute.Subnetwork(
+    "gke-subnet-central",
+    ip_cidr_range="10.160.0.0/12",
     network=gke_network.id,
     private_ip_google_access=True,
+    region="us-central1",
+)
+
+gke_subnet_east = gcp.compute.Subnetwork(
+    "gke-subnet-east",
+    ip_cidr_range="10.176.0.0/12",
+    network=gke_network.id,
+    private_ip_google_access=True,
+    region="us-east1",
 )
 
 gke_cluster = gcp.container.Cluster(
@@ -55,7 +65,7 @@ gke_cluster = gcp.container.Cluster(
     ip_allocation_policy=gcp.container.ClusterIpAllocationPolicyArgs(
         cluster_ipv4_cidr_block="/14", services_ipv4_cidr_block="/20"
     ),
-    location=gcp_region,
+    location=k8s_region,
     master_authorized_networks_config=gcp.container.ClusterMasterAuthorizedNetworksConfigArgs(
         cidr_blocks=[
             gcp.container.ClusterMasterAuthorizedNetworksConfigCidrBlockArgs(
@@ -68,10 +78,10 @@ gke_cluster = gcp.container.Cluster(
     private_cluster_config=gcp.container.ClusterPrivateClusterConfigArgs(
         enable_private_nodes=True,
         enable_private_endpoint=False,
-        master_ipv4_cidr_block="10.100.0.0/28",
+        master_ipv4_cidr_block="10.200.0.0/28",
     ),
     release_channel=gcp.container.ClusterReleaseChannelArgs(channel="STABLE"),
-    subnetwork=gke_subnet.name,
+    subnetwork=gke_subnet_east.name,
 )
 
 cluster_kubeconfig = pulumi.Output.all(
