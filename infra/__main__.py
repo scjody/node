@@ -131,7 +131,7 @@ service_account_email = build_service_account.email.apply(
 
 build_service_account_binding = gcp.projects.IAMBinding(
     "build_service_account_binding",
-    role="roles/artifactregistry.writer",
+    role="roles/artifactregistry.createOnPushRepoAdmin",
     members=[service_account_email],
     project=gcp_project,
 )
