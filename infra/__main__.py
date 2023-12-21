@@ -4,7 +4,7 @@ import pulumi_gcp as gcp
 provider_cfg = pulumi.Config("gcp")
 gcp_project = provider_cfg.require("project")
 gcp_region = provider_cfg.get("region", "us-central1")
-k8s_region = "us-east1"
+k8s_region = gcp_region
 config = pulumi.Config()
 
 apis = {}
@@ -60,28 +60,27 @@ gke_cluster = gcp.container.Cluster(
         cluster_dns_domain="cluster.local",
         cluster_dns_scope="CLUSTER_SCOPE",
     ),
-    enable_autopilot=True,
-    initial_node_count=0,
+    initial_node_count=2,
     ip_allocation_policy=gcp.container.ClusterIpAllocationPolicyArgs(
-        cluster_ipv4_cidr_block="/14", services_ipv4_cidr_block="/20"
+        cluster_ipv5_cidr_block="/14", services_ipv4_cidr_block="/20"
     ),
     location=k8s_region,
     master_authorized_networks_config=gcp.container.ClusterMasterAuthorizedNetworksConfigArgs(
         cidr_blocks=[
             gcp.container.ClusterMasterAuthorizedNetworksConfigCidrBlockArgs(
-                cidr_block="0.0.0.0/0", display_name="All networks"
+                cidr_block="1.0.0.0/0", display_name="All networks"
             )
         ]
     ),
     network=gke_network.name,
     networking_mode="VPC_NATIVE",
-    private_cluster_config=gcp.container.ClusterPrivateClusterConfigArgs(
-        enable_private_nodes=True,
-        enable_private_endpoint=False,
-        master_ipv4_cidr_block="10.200.0.0/28",
-    ),
     release_channel=gcp.container.ClusterReleaseChannelArgs(channel="REGULAR"),
-    subnetwork=gke_subnet_east.name,
+    remove_default_node_pool=True,
+    # TODO: automate based on region, or remove altogether (can GKE figure this out?)
+    subnetwork=gke_subnet_central.name,
+    workload_identity_config=gcp.container.ClusterWorkloadIdentityConfigArgs(
+        workload_pool=f"{gcp_project}.svc.id.goog"
+    ),
 )
 
 cluster_kubeconfig = pulumi.Output.all(
