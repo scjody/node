@@ -83,6 +83,43 @@ gke_cluster = gcp.container.Cluster(
     ),
 )
 
+std_service_account = gcp.serviceaccount.Account(
+    "standard", account_id="standard", display_name="Standard"
+)
+
+std_nodes = gcp.container.NodePool(
+    "standard",
+    location=k8s_region,
+    cluster=gke_cluster.name,
+    node_count=1,
+    node_config=gcp.container.NodePoolNodeConfigArgs(
+        machine_type="n1-standard-2",
+        disk_type="pd-standard",
+        service_account=std_service_account.email,
+        oauth_scopes=["https://www.googleapis.com/auth/cloud-platform"],
+    ),
+)
+
+ml_service_account = gcp.serviceaccount.Account(
+    "machine-learning", account_id="machine-learning", display_name="Machine Learning"
+)
+
+ml_nodes = gcp.container.NodePool(
+    "gpu",
+    location=k8s_region,
+    cluster=gke_cluster.name,
+    node_count=1,
+    node_config=gcp.container.NodePoolNodeConfigArgs(
+        machine_type="a2-highgpu-1g",
+        disk_size_gb=50,
+        disk_type="pd-standard",
+        service_account=ml_service_account.email,
+        oauth_scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        preemptible=True,
+    ),
+    node_locations=["us-central1-c"],
+)
+
 cluster_kubeconfig = pulumi.Output.all(
     gke_cluster.master_auth.cluster_ca_certificate,
     gke_cluster.endpoint,
