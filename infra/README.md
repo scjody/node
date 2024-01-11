@@ -89,5 +89,4 @@ It's missing a reasonable database though, so we plan on using the [free tier of
 
 We may need to pay for artifact (Docker image) and model storage, but hopefully we'll be able to leverage existing stores (e.g. the base Llama 2 models are already on GCS).
 
-The LLM pod(s) are billable, but they're running on GKE with Autopilot, which scales to zero.
-Therefore, we can avoid paying for them when we don't need them (unlike with Vertex AI, which can't scale to zero as of this writing).
+The LLM pod(s) are billable, ~~but they're running on GKE with Autopilot, which scales to zero.~~ but the whole cluster is enabled only when I'm working with it. My intent is to switch back to Autopilot, but there's a GCP bug that prevents it from provisioning the GPU nodes I need for the LLM. In any case, the goal is to avoid paying for the LLM pods when we don't need them (unlike with Vertex AI, which can't scale to zero as of this writing), and what's here lets me do that!
